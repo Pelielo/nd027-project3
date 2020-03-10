@@ -17,7 +17,17 @@ The purpose of this project is to build an ETL pipeline to extract data from an 
 ## Executing ETL process
 
 ```ini
-[CLUSTER]
+[AWS]
+KEY=
+SECRET=
+
+[CLUSTER] 
+CLUSTER_TYPE=multi-node
+NUM_NODES=4
+NODE_TYPE=dc2.large
+
+IAM_ROLE_NAME=
+CLUSTER_IDENTIFIER=
 HOST=
 DB_NAME=
 DB_USER=
@@ -25,7 +35,7 @@ DB_PASSWORD=
 DB_PORT=
 
 [IAM_ROLE]
-ARN=''
+ARN=
 
 [S3]
 LOG_DATA='s3://udacity-dend/log_data'
