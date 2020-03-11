@@ -4,12 +4,17 @@ from sql_queries import copy_table_queries, insert_table_queries
 
 
 def load_staging_tables(cur, conn):
+    """Loads tables in "copy_table_queries" list 
+    from a S3 bucket defined in config file"""
     for query in copy_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def insert_tables(cur, conn):
+    """Inserts data from the staging tables into
+    the star-schema tables defined in the 
+    "insert_table_queries" list"""
     for query in insert_table_queries:
         cur.execute(query)
         conn.commit()
