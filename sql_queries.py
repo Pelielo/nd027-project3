@@ -25,7 +25,7 @@ staging_events_table_create= ("""
         gender char(1),
         itemInSession int,
         lastName varchar,
-        length numeric,
+        length double precision,
         level varchar,
         location varchar,
         method varchar,
@@ -44,13 +44,13 @@ staging_songs_table_create = ("""
     create table if not exists stg_songs(
         num_songs int,
         artist_id varchar,
-        artist_latitude numeric,
-        artist_longitude numeric,
+        artist_latitude double precision,
+        artist_longitude double precision,
         artist_location varchar,
         artist_name varchar,
         song_id varchar,
         title varchar,
-        duration numeric,
+        duration double precision,
         year int
     )
 """)
@@ -83,7 +83,7 @@ song_table_create = ("""
         title varchar, 
         artist_id varchar, 
         year int, 
-        duration numeric
+        duration double precision
     )""")
 
 artist_table_create = ("""
@@ -91,8 +91,8 @@ artist_table_create = ("""
         artist_id varchar primary key sortkey, 
         name varchar, 
         location varchar, 
-        latitude numeric, 
-        longitude numeric
+        latitude double precision, 
+        longitude double precision
     )""")
 
 
@@ -144,7 +144,8 @@ songplay_table_insert = ("""
         e.userAgent
     from stg_events e
     join stg_songs s on e.artist = s.artist_name 
-    and e.song = s.title  
+    and e.song = s.title
+    where e.page = 'NextSong'  
 """)
 
 user_table_insert = ("""
@@ -156,6 +157,7 @@ user_table_insert = ("""
         e.gender,
         e.level
     from stg_events e
+    where e.page = 'NextSong' 
 """)
 
 song_table_insert = ("""
@@ -183,14 +185,18 @@ artist_table_insert = ("""
 time_table_insert = ("""
     insert into time (start_time, hour, day, week, month, year, weekday)
     select
-        timestamp 'epoch' + CAST(e.ts AS BIGINT)/1000 * interval '1 second' as start_time,
-        extract(hour from e.ts) as hour,
-        extract(day from e.ts) as day,
-        extract(week from e.ts) as week,
-        extract(month from e.ts) as month,
-        extract(year from e.ts) as year,
-        extract(dow from e.ts) as weekday
-    from stg_events e
+        start_time,
+        extract(hour from start_time) as hour,
+        extract(day from start_time) as day,
+        extract(week from start_time) as week,
+        extract(month from start_time) as month,
+        extract(year from start_time) as year,
+        extract(dow from start_time) as weekday
+    from (
+      Select timestamp 'epoch' + CAST(ts AS BIGINT)/1000 * interval '1 second' as start_time 
+      from stg_events
+      where page = 'NextSong'      
+    )
 """)
 
 # QUERY LISTS
